@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
 import { motion } from "framer-motion";
 import { Send } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 
 export default function Home({ className }: { className?: string }) {
@@ -58,10 +59,16 @@ export default function Home({ className }: { className?: string }) {
           ))}
 
           {/* Header */}
-          <div className="px-4 py-3 border-b border-white/10 relative z-10">
-            <h2 className="text-lg font-semibold text-white">
-              🤖 SQL AI Agent
-            </h2>
+          <div className="px-4 py-3 border-b border-white/10 relative z-10 ">
+            <div className="flex items-center gap-2 mb-1">
+              <Image
+                src={"/logo.svg"}
+                alt="SQL AI Agent Logo"
+                width={20}
+                height={20}
+              />
+              <h2 className="text-lg font-semibold text-white">SQL AI Agent</h2>
+            </div>
             <p className="text-xs text-white/70">
               Ask me anything about your SQL database!
             </p>
