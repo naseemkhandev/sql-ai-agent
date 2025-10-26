@@ -11,7 +11,6 @@ import { useState } from "react";
 export default function Home({ className }: { className?: string }) {
   const [input, setInput] = useState("");
   const { messages, sendMessage, status } = useChat();
-  console.log(status);
 
   return (
     <div className="h-screen p-1 overflow-hidden max-w-3xl mx-auto flex items-center justify-center">
@@ -89,7 +88,7 @@ export default function Home({ className }: { className?: string }) {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.4 }}
                           className={cn(
-                            "px-3 py-2 rounded-xl max-w-full shadow-md backdrop-blur-md w-fit",
+                            "px-3 py-2 rounded-lg shadow-md backdrop-blur-md w-full",
                             message.role !== "user"
                               ? "bg-white/10 text-white self-start"
                               : "bg-white text-black font-medium self-end"
