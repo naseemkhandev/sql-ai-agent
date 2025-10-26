@@ -1,16 +1,17 @@
 /* eslint-disable react-hooks/purity */
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Send } from "lucide-react";
+import NoChatMessages from "@/components/no-chat-messages";
 import { cn } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
+import { motion } from "framer-motion";
+import { Send } from "lucide-react";
+import { useState } from "react";
 
 export default function Home({ className }: { className?: string }) {
   const [input, setInput] = useState("");
-  const { messages, sendMessage } = useChat();
-  const isTyping = false;
+  const { messages, sendMessage, status } = useChat();
+  console.log(status);
 
   return (
     <div className="h-screen p-1 overflow-hidden max-w-3xl mx-auto flex items-center justify-center">
@@ -69,6 +70,7 @@ export default function Home({ className }: { className?: string }) {
 
           {/* Messages */}
           <div className="flex-1 px-4 py-3 overflow-y-auto space-y-3 text-sm flex flex-col relative z-10">
+            {!messages?.length && <NoChatMessages />}
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -90,7 +92,7 @@ export default function Home({ className }: { className?: string }) {
                             "px-3 py-2 rounded-xl max-w-full shadow-md backdrop-blur-md w-fit",
                             message.role !== "user"
                               ? "bg-white/10 text-white self-start"
-                              : "bg-white text-black font-semibold self-end"
+                              : "bg-white text-black font-medium self-end"
                           )}
                         >
                           {part.text}
@@ -101,7 +103,7 @@ export default function Home({ className }: { className?: string }) {
               </div>
             ))}
 
-            {isTyping && (
+            {status === "submitted" && (
               <motion.div
                 className="flex items-center gap-1 px-3 py-2 rounded-xl max-w-[30%] bg-white/10 self-start"
                 initial={{ opacity: 0 }}
