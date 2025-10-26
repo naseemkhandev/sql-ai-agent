@@ -5,29 +5,12 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Send } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useChat } from "@ai-sdk/react";
 
 export default function Home({ className }: { className?: string }) {
-  const [messages, setMessages] = useState<
-    { sender: "ai" | "user"; text: string }[]
-  >([{ sender: "ai", text: "👋 Hello! I’m your AI assistant." }]);
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-
-  const handleSend = () => {
-    if (!input.trim()) return;
-    setMessages([...messages, { sender: "user", text: input }]);
-    setInput("");
-    setIsTyping(true);
-
-    // Simulate AI response
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { sender: "ai", text: "🤖 This is a sample AI response." },
-      ]);
-      setIsTyping(false);
-    }, 1200);
-  };
+  const { messages, sendMessage } = useChat();
+  const isTyping = false;
 
   return (
     <div className="h-screen p-1 overflow-hidden max-w-3xl mx-auto flex items-center justify-center">
@@ -86,24 +69,38 @@ export default function Home({ className }: { className?: string }) {
 
           {/* Messages */}
           <div className="flex-1 px-4 py-3 overflow-y-auto space-y-3 text-sm flex flex-col relative z-10">
-            {messages.map((msg, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
+            {messages.map((message) => (
+              <div
+                key={message.id}
                 className={cn(
-                  "px-3 py-2 rounded-xl max-w-[80%] shadow-md backdrop-blur-md",
-                  msg.sender === "ai"
-                    ? "bg-white/10 text-white self-start"
-                    : "bg-white text-black font-semibold self-end"
+                  "whitespace-pre-wrap",
+                  message.role !== "user" ? "self-start" : "self-end"
                 )}
               >
-                {msg.text}
-              </motion.div>
+                {message.parts.map((part, i) => {
+                  switch (part.type) {
+                    case "text":
+                      return (
+                        <motion.div
+                          key={`${message.id}-${i}`}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4 }}
+                          className={cn(
+                            "px-3 py-2 rounded-xl max-w-full shadow-md backdrop-blur-md w-fit",
+                            message.role !== "user"
+                              ? "bg-white/10 text-white self-start"
+                              : "bg-white text-black font-semibold self-end"
+                          )}
+                        >
+                          {part.text}
+                        </motion.div>
+                      );
+                  }
+                })}
+              </div>
             ))}
 
-            {/* AI Typing Indicator */}
             {isTyping && (
               <motion.div
                 className="flex items-center gap-1 px-3 py-2 rounded-xl max-w-[30%] bg-white/10 self-start"
@@ -118,22 +115,28 @@ export default function Home({ className }: { className?: string }) {
             )}
           </div>
 
-          {/* Input */}
-          <div className="flex items-center gap-2 p-3 border-t border-white/10 relative z-10">
-            <input
-              className="flex-1 px-3 py-2 text-sm bg-black/50 rounded-lg border border-white/10 text-white focus:outline-none focus:ring-1 focus:ring-white/50"
-              placeholder="Type a message..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            />
-            <button
-              onClick={handleSend}
-              className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-            >
-              <Send className="w-4 h-4 text-white" />
-            </button>
-          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              sendMessage({ text: input });
+              setInput("");
+            }}
+          >
+            <div className="flex items-center gap-2 p-3 border-t border-white/10 relative z-10">
+              <input
+                className="flex-1 px-3 py-2 text-sm bg-black/50 rounded-lg border border-white/10 text-white focus:outline-none focus:ring-1 focus:ring-white/50"
+                placeholder="Type a message..."
+                value={input}
+                onChange={(e) => setInput(e.currentTarget.value)}
+              />
+              <button
+                type="submit"
+                className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <Send className="w-4 h-4 text-white" />
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
