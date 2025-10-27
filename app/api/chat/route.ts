@@ -1,6 +1,13 @@
+import { db } from "@/db";
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
-import { convertToModelMessages, streamText, tool, UIMessage } from "ai";
+import {
+  convertToModelMessages,
+  stepCountIs,
+  streamText,
+  tool,
+  UIMessage,
+} from "ai";
 import z from "zod";
 
 // Allow streaming responses up to 30 seconds
@@ -32,7 +39,34 @@ export async function POST(req: Request) {
         ? openai("gpt-4o")
         : google("gemini-2.5-flash"),
     messages: convertToModelMessages(messages),
+    stopWhen: stepCountIs(5),
     tools: {
+      schema: tool({
+        description: "Call this tool to get database schema information.",
+        inputSchema: z.object({}),
+        execute: async () => {
+          return `
+          CREATE TABLE products (
+            id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+            name text NOT NULL,
+            category text NOT NULL,
+            price real NOT NULL,
+            stock integer DEFAULT 0 NOT NULL,
+            created_at text DEFAULT CURRENT_TIMESTAMP
+          )
+          CREATE TABLE sales (
+            id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+            product_id integer NOT NULL,
+            quantity integer NOT NULL,
+            total_amount real NOT NULL,
+            sale_date text DEFAULT CURRENT_TIMESTAMP,
+            customer_name text NOT NULL,
+            region text NOT NULL,
+            FOREIGN KEY (product_id) REFERENCES products(id) ON UPDATE no action ON DELETE no action
+          )
+`;
+        },
+      }),
       db: tool({
         description:
           "A SQL database tool to execute queries against a SQL database.",
@@ -40,8 +74,10 @@ export async function POST(req: Request) {
           query: z.string().describe("The SQL query to execute."),
         }),
         execute: async ({ query }) => {
-          console.log("Executing query:", query);
-          return `Executed query: ${query}`;
+          if (!query.trim().toLowerCase().startsWith("select")) {
+            return "Error: Only SELECT queries are allowed.";
+          }
+          return await db.run(query);
         },
       }),
     },

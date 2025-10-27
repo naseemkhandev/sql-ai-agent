@@ -127,6 +127,7 @@
 }
 ::-webkit-scrollbar {
   width: 8px;
+  contain-intrinsic-height: 8px;
   background: transparent;
 }
 

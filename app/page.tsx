@@ -14,6 +14,8 @@ export default function Home({ className }: { className?: string }) {
   const [input, setInput] = useState("");
   const { messages, sendMessage, status } = useChat();
 
+  console.log(status);
+
   return (
     <div className="h-screen p-1 overflow-hidden max-w-3xl mx-auto flex items-center justify-center">
       <div
@@ -105,12 +107,18 @@ export default function Home({ className }: { className?: string }) {
                           {part.text}
                         </motion.div>
                       );
+                    // case "tool-db":
+                    //   return (
+                    //     <pre key={`${message.id}-${i}`}>
+                    //       {JSON.stringify(part, null, 2)}
+                    //     </pre>
+                    //   );
                   }
                 })}
               </div>
             ))}
 
-            {status === "submitted" && (
+            {(status === "submitted" || status === "streaming") && (
               <ShiningText text="Your SQL AI Agent is thinking..." />
             )}
           </div>
