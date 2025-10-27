@@ -124,7 +124,7 @@ export default function Home({ className }: { className?: string }) {
                           </div>
 
                           {(part.input as unknown as AIInput)?.query && (
-                            <pre className="text-xs bg-white/10 p-2 rounded mb-2 whitespace-pre-wrap overflow-x-auto">
+                            <pre className="text-xs bg-white/10 p-2 rounded mb-2 whitespace-pre-wrap overflow-x-auto w-full">
                               {(part.input as unknown as AIInput).query}
                             </pre>
                           )}
