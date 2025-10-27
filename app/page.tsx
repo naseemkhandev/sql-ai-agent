@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/purity */
 "use client";
 
 import NoChatMessages from "@/components/no-chat-messages";
@@ -8,7 +7,7 @@ import { useChat } from "@ai-sdk/react";
 import { motion } from "framer-motion";
 import { Send } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 type AIInput = {
   query: string;
@@ -21,6 +20,20 @@ type AIOutputput = {
 export default function Home({ className }: { className?: string }) {
   const [input, setInput] = useState("");
   const { messages, sendMessage, status } = useChat();
+
+  // Generate stable particle positions
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 20 }).map((_, i) => ({
+        id: i,
+        startX: (i * 37) % 100, // Deterministic but varied
+        endX: (((i * 37) % 100) + 20) % 100,
+        left: (i * 5.26) % 100, // Deterministic spread
+        duration: 5 + (i % 3),
+        delay: i * 0.5,
+      })),
+    []
+  );
 
   return (
     <div className="h-screen p-1 overflow-hidden max-w-full mx-auto flex items-center justify-center">
@@ -48,22 +61,22 @@ export default function Home({ className }: { className?: string }) {
           />
 
           {/* Floating Particles */}
-          {Array.from({ length: 20 }).map((_, i) => (
+          {particles.map((particle) => (
             <motion.div
-              key={i}
+              key={particle.id}
               className="absolute w-1 h-1 rounded-full bg-white/10"
               animate={{
                 y: ["0%", "-140%"],
-                x: [Math.random() * 200 - 100, Math.random() * 200 - 100],
+                x: [`${particle.startX}%`, `${particle.endX}%`],
                 opacity: [0, 1, 0],
               }}
               transition={{
-                duration: 5 + Math.random() * 3,
+                duration: particle.duration,
                 repeat: Infinity,
-                delay: i * 0.5,
+                delay: particle.delay,
                 ease: "easeInOut",
               }}
-              style={{ left: `${Math.random() * 100}%`, bottom: "-10%" }}
+              style={{ left: `${particle.left}%`, bottom: "-10%" }}
             />
           ))}
 
