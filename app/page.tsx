@@ -23,7 +23,7 @@ export default function Home({ className }: { className?: string }) {
   const { messages, sendMessage, status } = useChat();
 
   return (
-    <div className="h-screen p-1 overflow-hidden max-w-3xl mx-auto flex items-center justify-center">
+    <div className="h-screen p-1 overflow-hidden max-w-full mx-auto flex items-center justify-center">
       <div
         className={cn(
           "relative w-full h-full rounded-2xl overflow-hidden p-0.5",
