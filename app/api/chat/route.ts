@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     system: SYSTEM_PROMPT,
     model:
       process.env.AI_MODEL === "OPENAI"
-        ? openai("gpt-4o")
+        ? openai("gpt-5-nano")
         : google("gemini-2.5-flash"),
     messages: convertToModelMessages(messages),
     stopWhen: stepCountIs(5),

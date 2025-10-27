@@ -10,11 +10,17 @@ import { Send } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
+type AIInput = {
+  query: string;
+};
+
+type AIOutputput = {
+  rows: string[];
+};
+
 export default function Home({ className }: { className?: string }) {
   const [input, setInput] = useState("");
   const { messages, sendMessage, status } = useChat();
-
-  console.log(status);
 
   return (
     <div className="h-screen p-1 overflow-hidden max-w-3xl mx-auto flex items-center justify-center">
@@ -78,7 +84,7 @@ export default function Home({ className }: { className?: string }) {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 px-4 py-3 overflow-y-auto space-y-3 text-sm flex flex-col relative z-10">
+          <div className="flex-1 px-4 py-3 overflow-y-auto overflow-x-hidden space-y-3 text-sm flex flex-col relative z-10">
             {!messages?.length && <NoChatMessages />}
             {messages.map((message) => (
               <div
@@ -98,7 +104,7 @@ export default function Home({ className }: { className?: string }) {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.4 }}
                           className={cn(
-                            "px-3 py-2 rounded-lg shadow-md backdrop-blur-md w-full",
+                            "px-3 py-2 rounded-lg shadow-md backdrop-blur-md w-full whitespace-pre-wrap",
                             message.role !== "user"
                               ? "bg-white/10 text-white self-start"
                               : "bg-white text-black font-medium self-end"
@@ -107,12 +113,32 @@ export default function Home({ className }: { className?: string }) {
                           {part.text}
                         </motion.div>
                       );
-                    // case "tool-db":
-                    //   return (
-                    //     <pre key={`${message.id}-${i}`}>
-                    //       {JSON.stringify(part, null, 2)}
-                    //     </pre>
-                    //   );
+                    case "tool-db":
+                      return (
+                        <div
+                          key={`${message.id}-${i}`}
+                          className="my-2 p-3 bg-blue-50/10 rounded-lg border border-blue-200/10 w-full"
+                        >
+                          <div className="font-semibold text-white mb-1">
+                            🔍 Database Query
+                          </div>
+
+                          {(part.input as unknown as AIInput)?.query && (
+                            <pre className="text-xs bg-white/10 p-2 rounded mb-2 whitespace-pre-wrap overflow-x-auto">
+                              {(part.input as unknown as AIInput).query}
+                            </pre>
+                          )}
+                          {part.state === "output-available" &&
+                            (part.output as unknown as AIOutputput) && (
+                              <div className="text-sm text-green-700">
+                                ✅ Returned{" "}
+                                {(part.output as unknown as AIOutputput).rows
+                                  ?.length || 0}{" "}
+                                rows
+                              </div>
+                            )}
+                        </div>
+                      );
                   }
                 })}
               </div>
